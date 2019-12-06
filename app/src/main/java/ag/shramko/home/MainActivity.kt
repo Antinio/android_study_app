@@ -1,19 +1,18 @@
 package ag.shramko.home
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.BaseAdapter
-import android.widget.LinearLayout
-import android.widget.ListView
-import android.widget.TextView
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
+import com.squareup.picasso.Picasso
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
@@ -169,6 +168,22 @@ class RecHolder(view: View) : RecyclerView.ViewHolder(view) {
 
     fun bind(item: FeedItem) {
         val vTitle = itemView.findViewById<TextView>(R.id.item_title)
+        val vDesc = itemView.findViewById<TextView>(R.id.item_desc)
+        val vThumb = itemView.findViewById<ImageView>(R.id.item_thumb)
         vTitle.text = item.title
+        vDesc.text = item.description
+
+        if (item.thumbnail.isEmpty()) {
+            vThumb
+        } else {
+            Picasso.with(vThumb.context).load(item.thumbnail).into(vThumb)
+        }
+
+        itemView.setOnClickListener {
+            val i = Intent(Intent.ACTION_VIEW)
+            i.data = Uri.parse(item.link)
+            vThumb.context.startActivity(i)
+        }
+
     }
 }
