@@ -11,6 +11,8 @@ import android.widget.LinearLayout
 import android.widget.ListView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -21,13 +23,14 @@ class MainActivity : AppCompatActivity() {
     lateinit var vText: TextView
     lateinit var vList: LinearLayout
     lateinit var vListView: ListView
+    lateinit var vRecView: RecyclerView
     var request: Disposable? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        vListView = findViewById<ListView>(R.id.act1_listView)
+        vRecView = findViewById<RecyclerView>(R.id.act1_recView)
 
         val o =
             createRequest("https://api.rss2json.com/v1/api.json?rss_url=http%3A%2F%2Ffeeds.bbci.co.uk%2Fnews%2Frss.xml")
@@ -38,7 +41,7 @@ class MainActivity : AppCompatActivity() {
         request = o.subscribe({
 
             //            showLinerLayout(it.items)
-            showListView(it.items)
+            showRecView(it.items)
         }, {
             Log.e("test", "", it)
         })
@@ -58,6 +61,11 @@ class MainActivity : AppCompatActivity() {
     fun showListView(feedList: ArrayList<FeedItem>) {
         vListView.adapter = Adapter(feedList)
 
+    }
+
+    fun showRecView(feedList: ArrayList<FeedItem>) {
+        vRecView.adapter = RecAdapter(feedList)
+        vRecView.layoutManager = LinearLayoutManager(this)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -130,4 +138,37 @@ class Adapter(val items: ArrayList<FeedItem>) : BaseAdapter() {
         return items.size
     }
 
+}
+
+class RecAdapter(val items: ArrayList<FeedItem>) : RecyclerView.Adapter<RecHolder>() {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecHolder {
+        val inflater = LayoutInflater.from(parent!!.context)
+
+        val view = inflater.inflate(R.layout.list_item, parent, false)
+
+        return RecHolder(view)
+    }
+
+    override fun getItemCount(): Int {
+        return items.size
+    }
+
+    override fun onBindViewHolder(holder: RecHolder, position: Int) {
+        val item = items[position]
+
+        holder?.bind(item)
+    }
+
+    override fun getItemViewType(position: Int): Int {
+        return super.getItemViewType(position)
+    }
+
+}
+
+class RecHolder(view: View) : RecyclerView.ViewHolder(view) {
+
+    fun bind(item: FeedItem) {
+        val vTitle = itemView.findViewById<TextView>(R.id.item_title)
+        vTitle.text = item.title
+    }
 }
