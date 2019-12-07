@@ -3,134 +3,27 @@ package ag.shramko.home
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.BaseAdapter
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.gson.Gson
 import com.squareup.picasso.Picasso
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
-import io.realm.Realm
 import io.realm.RealmList
 import io.realm.RealmObject
 
 class MainActivity : AppCompatActivity() {
 
-    lateinit var vText: TextView
-    lateinit var vList: LinearLayout
-    lateinit var vListView: ListView
-    lateinit var vRecView: RecyclerView
-    var request: Disposable? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_fragment)
 
-        vRecView = findViewById<RecyclerView>(R.id.act1_recView)
-
-        val o =
-            createRequest("https://api.rss2json.com/v1/api.json?rss_url=http%3A%2F%2Ffeeds.bbci.co.uk%2Fnews%2Frss.xml")
-                .map { Gson().fromJson(it, FeedAPI::class.java) }
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-
-        request = o.subscribe({
-
-            val feed = Feed(
-                it.items.mapTo(
-                    RealmList<FeedItem>(),
-                    { feed -> FeedItem(feed.title, feed.link, feed.thumbnail, feed.description) })
-            )
-
-            Realm.getDefaultInstance().executeTransaction { realm ->
-
-                val oldList = realm.where(Feed::class.java).findAll()
-                if (oldList.size > 0)
-                    for (item in oldList)
-                        item.deleteFromRealm()
-
-                realm.copyToRealm(feed)
-
-            }
-            showRecView()
-            //            showLinerLayout(it.items)
-        }, {
-            Log.e("test", "", it)
-            showRecView()
-        })
-    }
-
-//    override fun onConfigurationChanged(newConfig: Configuration) {
-//        super.onConfigurationChanged(newConfig)
-//    }
-//    }
-//
-//    override fun onSaveInstanceState(outState: Bundle) {
-//        super.onSaveInstanceState(outState)
-//    }
-
-    fun showLinerLayout(feedList: ArrayList<FeedItemAPI>) {
-
-        val inflater = layoutInflater
-        for (f in feedList) {
-            val view = inflater.inflate(R.layout.list_item, vList, false)
-            val vTitle = view.findViewById<TextView>(R.id.item_title)
-            vTitle.text = f.title
-            vList.addView(view)
-        }
-    }
-
-    fun showListView(feedList: ArrayList<FeedItemAPI>) {
-        vListView.adapter = Adapter(feedList)
-
-    }
-
-    fun showRecView() {
-
-        Realm.getDefaultInstance().executeTransaction { realm ->
-            val feed = realm.where(Feed::class.java).findAll()
-            if (feed.size > 0) {
-                vRecView.adapter = RecAdapter(feed[0]!!.items)
-                vRecView.layoutManager = LinearLayoutManager(this)
-            }
-        }
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (data != null) {
-            val str = data.getStringExtra("tag2")
-
-            vText.text = str
-        }
-    }
-
-    override fun onStart() {
-        super.onStart()
-    }
-
-    override fun onResume() {
-        super.onResume()
-    }
-
-    override fun onPause() {
-        super.onPause()
-    }
-
-    override fun onStop() {
-        super.onStop()
-    }
-
-    override fun onDestroy() {
-        request?.dispose()
-        super.onDestroy()
+        supportFragmentManager.beginTransaction().replace(R.id.fragment_place, MainFragment())
+            .commit()
     }
 }
 
