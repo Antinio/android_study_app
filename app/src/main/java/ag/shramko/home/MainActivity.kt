@@ -1,8 +1,7 @@
 package ag.shramko.home
 
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
+import android.text.Html
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -39,9 +38,16 @@ class MainActivity : AppCompatActivity() {
         val fragment = SecondFragment()
         fragment.arguments = bundle
 
-        supportFragmentManager.beginTransaction().add(R.id.fragment_place, fragment)
-            .addToBackStack("main")
-            .commitAllowingStateLoss()
+        val frame2 = findViewById<View>(R.id.fragment_place2)
+        if (frame2 != null) {
+            frame2.visibility = View.VISIBLE
+            supportFragmentManager.beginTransaction().replace(R.id.fragment_place2, fragment)
+                .commitAllowingStateLoss()
+        } else {
+            supportFragmentManager.beginTransaction().add(R.id.fragment_place, fragment)
+                .addToBackStack("main")
+                .commitAllowingStateLoss()
+        }
     }
 }
 
@@ -53,7 +59,8 @@ class FeedItemAPI(
     val title: String,
     val link: String,
     val thumbnail: String,
-    val description: String
+    val description: String,
+    val guid: String
 )
 
 open class Feed(
@@ -64,7 +71,8 @@ open class FeedItem(
     var title: String = "",
     var link: String = "",
     var thumbnail: String = "",
-    var description: String = ""
+    var description: String = "",
+    var guid: String = ""
 ) : RealmObject()
 
 class Adapter(val items: ArrayList<FeedItemAPI>) : BaseAdapter() {
@@ -128,7 +136,7 @@ class RecHolder(view: View) : RecyclerView.ViewHolder(view) {
         val vDesc = itemView.findViewById<TextView>(R.id.item_desc)
         val vThumb = itemView.findViewById<ImageView>(R.id.item_thumb)
         vTitle.text = item.title
-        vDesc.text = item.description
+        vDesc.text = Html.fromHtml(item.description)
 
         if (item.thumbnail.isEmpty()) {
             vThumb
@@ -137,10 +145,10 @@ class RecHolder(view: View) : RecyclerView.ViewHolder(view) {
         }
 
         itemView.setOnClickListener {
-            val i = Intent(Intent.ACTION_VIEW)
-            i.data = Uri.parse(item.link)
-            vThumb.context.startActivity(i)
-//            (vThumb.context as MainActivity).showArticle(item.link)
+            //            val i = Intent(Intent.ACTION_VIEW)
+//            i.data = Uri.parse(item.link)
+//            vThumb.context.startActivity(i)
+            (vThumb.context as MainActivity).showArticle(item.link)
         }
 
     }
