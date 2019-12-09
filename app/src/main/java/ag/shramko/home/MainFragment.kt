@@ -23,6 +23,8 @@ class MainFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val param = arguments!!.getString("param")
     }
 
     override fun onCreateView(

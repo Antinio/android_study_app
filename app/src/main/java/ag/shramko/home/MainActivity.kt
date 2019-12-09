@@ -22,8 +22,26 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_fragment)
 
-        supportFragmentManager.beginTransaction().replace(R.id.fragment_place, MainFragment())
-            .commit()
+        if (savedInstanceState == null) {
+            val bundle = Bundle()
+            bundle.putString("param", "value")
+            val fragment = MainFragment()
+            fragment.arguments = bundle
+            supportFragmentManager.beginTransaction().replace(R.id.fragment_place, fragment)
+                .commitAllowingStateLoss()
+        }
+    }
+
+    fun showArticle(url: String) {
+
+        val bundle = Bundle()
+        bundle.putString("url", url)
+        val fragment = SecondFragment()
+        fragment.arguments = bundle
+
+        supportFragmentManager.beginTransaction().add(R.id.fragment_place, fragment)
+            .addToBackStack("main")
+            .commitAllowingStateLoss()
     }
 }
 
@@ -94,7 +112,7 @@ class RecAdapter(val items: RealmList<FeedItem>) : RecyclerView.Adapter<RecHolde
     override fun onBindViewHolder(holder: RecHolder, position: Int) {
         val item = items[position]!!
 
-        holder?.bind(item)
+        holder.bind(item)
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -122,6 +140,7 @@ class RecHolder(view: View) : RecyclerView.ViewHolder(view) {
             val i = Intent(Intent.ACTION_VIEW)
             i.data = Uri.parse(item.link)
             vThumb.context.startActivity(i)
+//            (vThumb.context as MainActivity).showArticle(item.link)
         }
 
     }
