@@ -1,5 +1,6 @@
 package ag.shramko.home
 
+import android.content.Intent
 import android.os.Bundle
 import android.text.Html
 import android.view.LayoutInflater
@@ -48,6 +49,12 @@ class MainActivity : AppCompatActivity() {
                 .addToBackStack("main")
                 .commitAllowingStateLoss()
         }
+    }
+
+    fun playMusic(url: String) {
+        val i = Intent(this, PlayService::class.java)
+        i.putExtra("mp3", url)
+        startService(i)
     }
 }
 
@@ -148,7 +155,10 @@ class RecHolder(view: View) : RecyclerView.ViewHolder(view) {
             //            val i = Intent(Intent.ACTION_VIEW)
 //            i.data = Uri.parse(item.link)
 //            vThumb.context.startActivity(i)
-            (vThumb.context as MainActivity).showArticle(item.link)
+
+//            (vThumb.context as MainActivity).showArticle(item.link)
+
+            (vThumb.context as MainActivity).playMusic(item.guid)
         }
 
     }
